@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RoundRippleButton">
+        <attr name="autoStart" format="boolean"/>
+        <attr name="duration" format="integer"/>
+        <attr name="rippleColor" format="color|dimension"/>
+        <attr name="rippleCount" format="integer"/>
+    </declare-styleable>
+</resources>
