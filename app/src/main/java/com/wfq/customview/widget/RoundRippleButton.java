@@ -215,6 +215,7 @@ public class RoundRippleButton extends AppCompatButton {
     }
 
     public void stop() {
+        if (!mAnim.isStarted()) return;
         mAnim.end();
     }
 

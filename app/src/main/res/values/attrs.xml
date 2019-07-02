@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="RoundRippleButton">
-        <attr name="autoStart" format="boolean"/>
-        <attr name="duration" format="integer"/>
-        <attr name="rippleColor" format="color|dimension"/>
-        <attr name="rippleCount" format="integer"/>
+        <attr name="autoStart" format="boolean" />
+        <attr name="duration" format="integer" />
+        <attr name="rippleColor" format="color|dimension" />
+        <attr name="rippleCount" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="DashLine">
+        <attr name="android:color" />
+        <attr name="android:orientation" />
+        <attr name="dashGap" format="dimension" />
+        <attr name="dashWidth" format="dimension" />
+        <attr name="lineWidth" format="dimension" />
     </declare-styleable>
 </resources>
