@@ -31,8 +31,8 @@ public class DashLine extends View {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
-    private int mCurrentColor = 0;
-    private ColorStateList mColorStateList = ColorStateList.valueOf(mCurrentColor);
+    private int mCurrentColor;
+    private ColorStateList mColorStateList;
     private int mDashGap = 10;
     private int mDashWidth = 10;
     private int mLineWidth = 4;
@@ -81,28 +81,17 @@ public class DashLine extends View {
             }
         }
         typedArray.recycle();
-        mPaint.setColor(mCurrentColor);
         mPaint.setStrokeWidth(mLineWidth);
     }
 
-    @ColorInt
-    public int getColor() {
-        return mColorStateList.getColorForState(getDrawableState(), mCurrentColor);
-    }
-
     public void setColor(@ColorInt int value) {
-        setColor(ColorStateList.valueOf(value));
+        mColorStateList = ColorStateList.valueOf(value);
+        updateColor();
     }
 
     public void setColor(@NonNull ColorStateList colors) {
-        if (mColorStateList == colors) return;
         mColorStateList = colors;
-        int color = getColor();
-        if (mCurrentColor != color) {
-            mCurrentColor = color;
-            mPaint.setColor(mCurrentColor);
-            invalidate();
-        }
+        updateColor();
     }
 
     public void setOrientation(@IntRange(from = 0, to = 1) int orientation) {
@@ -115,10 +104,21 @@ public class DashLine extends View {
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
-        int color = getColor();
-        if (mCurrentColor != color) {
-            mCurrentColor = getColor();
-            mPaint.setColor(mCurrentColor);
+        if (mColorStateList != null && mColorStateList.isStateful()) {
+            updateColor();
+        }
+    }
+
+    private void updateColor() {
+        boolean inval = false;
+        final int[] drawableState = getDrawableState();
+        int color = mColorStateList.getColorForState(drawableState, 0);
+        if (color != mCurrentColor) {
+            mCurrentColor = color;
+            inval = true;
+        }
+        if (inval) {
+            invalidate();
         }
     }
 
@@ -128,6 +128,7 @@ public class DashLine extends View {
         int width = getWidth();
         int height = getHeight();
         int start = 0;
+        mPaint.setColor(mCurrentColor);
         if (mOrientation == HORIZONTAL) {
             while (start < width) {
                 canvas.drawLine(start, height >> 1, start + mDashWidth, height >> 1, mPaint);

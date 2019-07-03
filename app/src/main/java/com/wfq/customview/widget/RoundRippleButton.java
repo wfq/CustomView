@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.wfq.customview.R;
@@ -35,7 +36,7 @@ public class RoundRippleButton extends AppCompatButton {
     private int mContentRadius;
     private boolean mAutoStart = true;
     private ColorStateList mRippleColor;
-    private int mCurrentColor = 0;
+    private int mCurrentColor;
 
     private int mOffset;
 
@@ -95,9 +96,6 @@ public class RoundRippleButton extends AppCompatButton {
                 refreshRipples();
             }
         });
-        if (mRippleColor != null) {
-            setRippleColor(mRippleColor);
-        }
     }
 
     @Override
@@ -147,7 +145,9 @@ public class RoundRippleButton extends AppCompatButton {
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
-        mCurrentColor = getColor();
+        if (mRippleColor != null && mRippleColor.isStateful()) {
+            updateColor();
+        }
     }
 
     public RoundRippleButton setAutoStart(boolean isAuto) {
@@ -155,24 +155,19 @@ public class RoundRippleButton extends AppCompatButton {
         return this;
     }
 
-    public RoundRippleButton setRippleColor(@ColorInt int value) {
-        return setRippleColor(ColorStateList.valueOf(value));
+    public void setRippleColor(@ColorInt int color) {
+        mRippleColor = ColorStateList.valueOf(color);
+        updateColor();
     }
 
-    public RoundRippleButton setRippleColor(ColorStateList colors) {
+    public void setRippleColor(@NonNull ColorStateList colors) {
         mRippleColor = colors;
-        int color = getColor();
-        if (mCurrentColor != color) {
-            mCurrentColor = color;
-            invalidate();
-        }
-        return this;
+        updateColor();
     }
 
-    public RoundRippleButton setRippleCount(int count) {
+    public void setRippleCount(int count) {
         mRippleCount = count;
         initRipples();
-        return this;
     }
 
     public RoundRippleButton setInterpolator(TimeInterpolator value) {
@@ -203,9 +198,17 @@ public class RoundRippleButton extends AppCompatButton {
         invalidate();
     }
 
-    @ColorInt
-    public int getColor() {
-        return mRippleColor.getColorForState(getDrawableState(), mCurrentColor);
+    private void updateColor() {
+        boolean inval = false;
+        final int[] drawableState = getDrawableState();
+        int color = mRippleColor.getColorForState(drawableState, 0);
+        if (color != mCurrentColor) {
+            mCurrentColor = color;
+            inval = true;
+        }
+        if (inval) {
+            invalidate();
+        }
     }
 
     public void start() {
