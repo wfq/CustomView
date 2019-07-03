@@ -73,7 +73,11 @@ public class RoundRippleButton extends AppCompatButton {
                     mAutoStart = typedArray.getBoolean(attr, true);
                     break;
                 case R.styleable.RoundRippleButton_rippleColor:
-                    mRippleColor = typedArray.getColorStateList(attr);
+                    ColorStateList colorStateList = typedArray.getColorStateList(attr);
+                    if (colorStateList != null) {
+                        mCurrentColor = colorStateList.getColorForState(getDrawableState(), 0);
+                        mRippleColor = colorStateList;
+                    }
                     break;
             }
         }

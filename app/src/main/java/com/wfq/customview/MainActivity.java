@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         rippleButton = findViewById(R.id.rippleBtn);
+        rippleButton.setSelected(true);
         dl = findViewById(R.id.dl);
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
