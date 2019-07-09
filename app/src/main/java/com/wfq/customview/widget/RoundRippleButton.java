@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
@@ -29,6 +30,7 @@ public class RoundRippleButton extends AppCompatButton {
     private static final String TAG = "RoundRippleButton";
 
     private Paint mPaint;
+    private Paint mRipplePaint;
     private Point mCenterPoint;
     private ValueAnimator mAnim;
     private int mMaxRadius;
@@ -84,9 +86,10 @@ public class RoundRippleButton extends AppCompatButton {
         typedArray.recycle();
 
         mCenterPoint = new Point();
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
+        mRipplePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mRipplePaint.setStyle(Paint.Style.STROKE);
         mAnim = new ValueAnimator();
         mAnim.setRepeatCount(ValueAnimator.INFINITE);
         if (duration != null) {
@@ -131,11 +134,12 @@ public class RoundRippleButton extends AppCompatButton {
     @Override
     protected void onDraw(Canvas canvas) {
         mPaint.setColor(mCurrentColor);
+        mRipplePaint.setColor(mCurrentColor);
         for (Ripple ripple : mRippleList) {
-            mPaint.setAlpha(ripple.getAlpha());
-            canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, ripple.getRadius(), mPaint);
+            mRipplePaint.setAlpha(ripple.getAlpha(mCurrentColor));
+            mRipplePaint.setStrokeWidth(ripple.getRingWidth());
+            canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, mContentRadius + (ripple.getRingWidth() >> 1), mRipplePaint);
         }
-        mPaint.setAlpha(255);
         canvas.drawCircle(mCenterPoint.x, mCenterPoint.y, mContentRadius, mPaint);
         super.onDraw(canvas);
     }
@@ -185,9 +189,9 @@ public class RoundRippleButton extends AppCompatButton {
     private void initRipples() {
         mRippleList.clear();
         if (mMaxRadius == 0) return;
-        int maxRippleRadius = mMaxRadius - mContentRadius;
+        int maxRippleWidth = mMaxRadius - mContentRadius;
         for (int i = 0; i < mRippleCount; i++) {
-            int offset = maxRippleRadius * i / mRippleCount;
+            int offset = maxRippleWidth * i / mRippleCount;
             Ripple ripple = new Ripple(mContentRadius, mMaxRadius);
             ripple.setOffset(offset);
             mRippleList.add(ripple);
@@ -240,9 +244,9 @@ public class RoundRippleButton extends AppCompatButton {
         private int minRadius;
         private int maxRadius;
 
-        private int mAlpha;
         private int mOffset;
         private int mRadius;
+        private int mRingWidth;
 
         Ripple(int minRadius, int maxRadius) {
             this.minRadius = minRadius;
@@ -273,15 +277,19 @@ public class RoundRippleButton extends AppCompatButton {
             } else {
                 mRadius = diff;
             }
-            setAlpha();
+            setRingWidth(mRadius - minRadius);
         }
 
-        int getAlpha() {
-            return mAlpha;
+        public int getRingWidth() {
+            return mRingWidth;
         }
 
-        private void setAlpha() {
-            mAlpha = 204 * (maxRadius - mRadius) / (maxRadius - minRadius);
+        public void setRingWidth(int ringWidth) {
+            this.mRingWidth = ringWidth;
+        }
+
+        int getAlpha(@ColorInt int color) {
+            return Color.alpha(color) * (maxRadius - mRadius) / (maxRadius - minRadius);
         }
     }
 }
